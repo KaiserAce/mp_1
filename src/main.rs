@@ -7,6 +7,7 @@ const MAX_WEIGHT: u16 = 1000;
 
 #[derive(Clone)]
 struct Item(u8, u16);
+// Item(weight, value)
 
 impl fmt::Display for Item {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -15,6 +16,7 @@ impl fmt::Display for Item {
 }
 
 struct Solution(u64, u16, u16);
+//Solution(Binary, weight, value)
 
 #[derive(Tabled)]
 struct Runtime {
@@ -24,6 +26,7 @@ struct Runtime {
     set_3: f64,
     average: f64,
 }
+//For displayying table
 
 fn build_runtime(n: u8, set_1: f64, set_2: f64, set_3: f64) -> Runtime {
     Runtime {
