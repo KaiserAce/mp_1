@@ -1,5 +1,7 @@
 use rand::Rng;
 use std::fmt;
+use std::time::Instant;
+use tabled::{Tabled, Table};
 
 const MAX_WEIGHT: u16 = 1000;
 
@@ -14,7 +16,27 @@ impl fmt::Display for Item {
 
 struct Solution(u64, u16, u16);
 
-fn display_items(items: &Vec<Item>){
+#[derive(Tabled)]
+struct Runtime {
+    n: u8, 
+    set_1: f64,
+    set_2: f64,
+    set_3: f64,
+    average: f64,
+}
+
+fn build_runtime(n: u8, set_1: f64, set_2: f64, set_3: f64) -> Runtime {
+    Runtime {
+        n, 
+        set_1, 
+        set_2, 
+        set_3,
+        average: (set_1 + set_2 + set_3)/3.0
+    }
+}
+
+
+fn display_items(items: &[Item]){
     print!("[");
     for item in items.iter(){
         print!("{}, ", item);
@@ -34,7 +56,7 @@ fn gen_set(n: u8) -> Vec<Item>{
 }
 
 
-fn gen_subset(items: &Vec<Item>) {
+fn gen_subset(items: &[Item]) {
     let size = items.len();
     let mut temp = vec![Item(0, 0); size];
     let mut start = 0u64;
@@ -56,7 +78,7 @@ fn gen_subset(items: &Vec<Item>) {
     }
 }
 
-fn gen_weight_value(items: &Vec<Item>) {
+fn gen_weight_value(items: &[Item]) {
     let mut weight: u16 = 0;
     let mut value: u16 = 0;
     let size = items.len();
@@ -76,7 +98,7 @@ fn gen_weight_value(items: &Vec<Item>) {
     } 
 }
 
-fn solve_knapsack(items: &Vec<Item>) -> Solution{
+fn solve_knapsack(items: &[Item]) -> Solution{
     let mut subset = 0u64;
     let mut max_weight: u16 = 0;
     let mut max_value: u16 = 0;
@@ -95,7 +117,7 @@ fn solve_knapsack(items: &Vec<Item>) -> Solution{
             weight -= items[lsb].0 as u16;
             value -= items[lsb].1;
         }
-        if max_weight <= MAX_WEIGHT {
+        if weight <= MAX_WEIGHT {
             if value > max_value {
                 subset = start;
                 max_weight = weight;
@@ -137,31 +159,51 @@ fn gen_small_cases(n: u8){
 
     println!("Generating cumulative weights and values of each subset for set 1: ");
     gen_weight_value(&set_1);
-    solve_knapsack(&set_1);
+    let mut sol = solve_knapsack(&set_1);
+    println!("Solution:[set: {:04b}, weight: {}, value: {}]", sol.0, sol.1, sol.2);
     println!(" ");
     println!("Generating cumulative weights and values of each subset for set 2: ");
     gen_weight_value(&set_2);
-    solve_knapsack(&set_2);
+    sol = solve_knapsack(&set_2);
+    println!("Solution:[set: {:04b}, weight: {}, value: {}]", sol.0, sol.1, sol.2);
     println!(" ");
     println!("Generating cumulative weights and values of each subset for set 3: ");
     gen_weight_value(&set_3);
-    solve_knapsack(&set_3);
+    sol = solve_knapsack(&set_3);
+    println!("Solution:[set: {:04b}, weight: {}, value: {}]", sol.0, sol.1, sol.2);
     println!(" ");
 }
 
-fn gen_actual_cases() {
-
-}
-
-fn print_tabled_results() {
-
+fn gen_actual_case(n: u8) -> Runtime {
+    println!("Test case n = {}", n);
+    let mut runtimes = Vec::new();
+    for i in 1..=3 {
+        println!("Set {}", i);
+        let set = gen_set(n);
+        display_items(&set);
+        let start = Instant::now();
+        let sol = solve_knapsack(&set);
+        let runtime = start.elapsed().as_secs_f64();
+        println!(" ");
+        println!("Solution:[set: {:050b}, weight: {}, value: {}]", sol.0, sol.1, sol.2);
+        println!("Runtime: {}", runtime);
+        println!(" ");
+        runtimes.push(runtime);
+    }
+    build_runtime(n, runtimes[0], runtimes[1], runtimes[2])
 }
 
 fn main() {
     for i in 2..=4{
         gen_small_cases(i);
     }
-    for i in 10..=40 {
 
+    let mut runtimes: Vec<Runtime> = Vec::new();
+
+    for i in 10..=30 {
+        let runtime = gen_actual_case(i);
+        runtimes.push(runtime);
     }
+    let table = Table::new(runtimes).to_string();
+    println!("{}", table);
 }
