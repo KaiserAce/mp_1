@@ -98,7 +98,7 @@ fn gen_weight_value(items: &[Item]) {
     } 
 }
 
-fn solve_knapsack(items: &[Item]) -> Solution{
+fn solve_knapsack(items: &[Item]) -> Solution {
     let mut subset = 0u64;
     let mut max_weight: u16 = 0;
     let mut max_value: u16 = 0;
