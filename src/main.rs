@@ -203,7 +203,7 @@ fn main() {
 
     let mut runtimes: Vec<Runtime> = Vec::new();
 
-    for i in 10..=30 {
+    for i in 10..=40 {
         let runtime = gen_actual_case(i);
         runtimes.push(runtime);
     }
